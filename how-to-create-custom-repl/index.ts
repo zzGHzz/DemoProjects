@@ -1,45 +1,47 @@
-import * as repl from 'repl';
+import { start } from 'repl';
 import { Command } from 'commander';
 const figlet = require('figlet');
 
-const mainProgram = new Command();
-mainProgram
+const program = new Command();
+program
 	.version('0.0.1')
 	.description('My custom REPL');
 
-const helloCmd = mainProgram.command('hello');
-helloCmd
-	.description('Say hello to input name')
-	.argument('<name>', 'Name to say hello to')
+let _name: string = '';
+const nameCmd = program.command('name');
+nameCmd
+	.description('Save name')
+	.arguments('<name>')
 	.action((name: string) => {
-		console.log(`Hello, ${name}`);
+		_name = name;
+		console.log(`Name saved: ${name}`);
 	});
 
-const splitCmd = mainProgram.command('split');
-splitCmd
-	.description('Split input string')
-	.argument('<str>', 'String to split')
-	.option('--first', 'display just the first substring')
-	.option('-s, --separator <char>', 'separator character', ',')
-	.action((str, options) => {
-		const limit = options.first ? 1 : undefined;
-		console.log(str.split(options.separator, limit));
+const helloCmd = program.command('hello');
+helloCmd
+	.description('Say hello to saved name')
+	.action(() => {
+		if (_name.length > 0) {
+			console.log(`Hello, ${_name}`);
+		} else {
+			console.log('No name saved');
+		}
 	});
 
-mainProgram.exitOverride();
+program.exitOverride();
+nameCmd.exitOverride();
 helloCmd.exitOverride();
-splitCmd.exitOverride();
 
 console.log(figlet.textSync('My REPL'));
-mainProgram.outputHelp();
+program.outputHelp();
 
-repl.start({
+start({
 	prompt: 'my-repl> ',
 	ignoreUndefined: true,
 	eval: (cmd, context, filename, callback) => {
 		const args = cmd.trim().split(' ');
 		try {
-			mainProgram.parse(args, { from: 'user' });
+			program.parse(args, { from: 'user' });
 			callback(null, undefined);
 		} catch (err) {
 			callback(null, undefined);
