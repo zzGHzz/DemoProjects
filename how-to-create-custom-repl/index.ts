@@ -41,7 +41,7 @@ start({
 	eval: (cmd, context, filename, callback) => {
 		const args = cmd.trim().split(' ');
 		try {
-			program.parse(args, { from: 'user' });
+			program.parseAsync(args, { from: 'user' });
 			callback(null, undefined);
 		} catch (err) {
 			callback(null, undefined);
